@@ -295,99 +295,511 @@
 
         /* comment */
 
-        /* Interactive Explorer */
-        .interactive-panel {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-top: 3rem;
-            backdrop-filter: blur(10px);
-            text-align: center;
-        }
-
-        .operation-buttons {
+        /* Interactive Explorer and Upgraded Bit-Level Visualizer */
+        .interactive-container {
             display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin: 2rem 0;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 1rem;
         }
 
-        .op-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
+        .interactive-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1.9fr;
+            gap: 2rem;
+            align-items: start;
+            text-align: left;
+        }
+
+        @media (max-width: 992px) {
+            .interactive-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Bit Toggling UI */
+        .bit-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .bit-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bit-label {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            width: 75px;
+        }
+
+        .bit-cells {
+            display: flex;
+            gap: 4px;
+            flex-grow: 1;
+            justify-content: flex-end;
+        }
+
+        .bit-cell {
+            width: 32px;
+            height: 32px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bit-cell:hover {
+            border-color: var(--accent-blue);
+            transform: scale(1.08);
             color: var(--text-primary);
-            padding: 0.5rem 1.5rem;
-            border-radius: 20px;
+        }
+
+        .bit-cell.active {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%);
+            border-color: var(--accent-green);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Control Toggles */
+        .ci-toggle {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-secondary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.2s;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            text-align: center;
         }
 
-        .op-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+        .ci-toggle.active {
+            background: rgba(245, 158, 11, 0.25);
+            border-color: #f59e0b;
+            color: #fff;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
         }
 
-        .op-btn.active {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
+        .ci-toggle:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            border-color: var(--border);
+            background: rgba(30, 41, 59, 0.4);
         }
 
-        .routing-display {
+        /* Value Display Panel */
+        .val-display {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .val-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .val-title {
+            color: var(--text-secondary);
+        }
+
+        .val-num {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Output Flags Display */
+        .flags-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .flag-box {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 0.25rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .flag-box.active {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.15);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+        }
+
+        .flag-box.active-red {
+            border-color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.15);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.25);
+        }
+
+        .flag-name {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: block;
+            font-weight: 600;
+        }
+
+        .flag-val {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-top: 2px;
+        }
+
+        /* Schematic Viewports */
+        .schematic-viewport {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            min-height: 480px;
+            max-height: 520px;
+            overflow-y: auto;
+            position: relative;
+            padding: 1.25rem;
+            box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .schematic-viewport > div {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .schematic-viewport > div.active-viewport {
+            display: block;
+        }
+
+        /* Bitwise Flow Schematic */
+        .bitwise-row {
             display: flex;
             align-items: center;
-            justify-content: space-around;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 2rem;
-            border-radius: 12px;
-            margin-top: 1.5rem;
-            min-height: 200px;
+            height: 48px;
+            position: relative;
+            margin-bottom: 6px;
         }
 
-        .route-step {
-            padding: 1rem;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
+        .wire-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .wire-line {
+            fill: none;
+            stroke: #334155;
+            stroke-width: 2px;
+            transition: stroke 0.3s, stroke-width 0.3s;
+        }
+
+        .wire-line.active {
+            stroke: var(--accent-green);
+            stroke-width: 3px;
+        }
+
+        .wire-line.active-out {
+            stroke: var(--accent-blue);
+            stroke-width: 3px;
+        }
+
+        .gate-svg {
+            fill: #1e293b;
+            stroke: var(--text-secondary);
+            stroke-width: 2px;
+            transition: all 0.3s;
+        }
+
+        .gate-active {
+            fill: rgba(59, 130, 246, 0.2);
+            stroke: var(--accent-blue);
+            filter: drop-shadow(0 0 6px var(--accent-blue));
+        }
+
+        /* Ripple Carry Adder Schematic */
+        .adder-chain {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 16px;
+            padding: 0.5rem 0;
+        }
+
+        .fa-stage {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(30, 41, 59, 0.4);
             border: 1px solid var(--border);
-            width: 200px;
-            opacity: 0.3;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 8px;
+            padding: 8px 16px;
+            position: relative;
+            transition: all 0.3s;
         }
 
-        .route-step.active-route {
-            opacity: 1;
-            transform: scale(1.05);
-            background: rgba(59, 130, 246, 0.2);
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        .fa-stage.active {
+            border-color: rgba(59, 130, 246, 0.4);
+            background: rgba(30, 41, 59, 0.6);
         }
 
-        .route-step.active-route-seq {
-            opacity: 1;
-            transform: scale(1.05);
-            background: rgba(139, 92, 246, 0.2);
-            border-color: var(--accent-purple);
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        .fa-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .route-arrow {
-            font-size: 2rem;
+        .fa-pin-val {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            background: #1e293b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
             color: var(--text-secondary);
-            opacity: 0.3;
-            transition: all 0.5s ease;
+            transition: all 0.3s;
         }
 
-        .route-arrow.active {
+        .fa-pin-val.active {
+            color: var(--accent-green);
+            border-color: var(--accent-green);
+            box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+        }
+
+        .fa-pin-val.active-inv {
+            color: var(--accent-purple);
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 5px rgba(139, 92, 246, 0.3);
+        }
+
+        .fa-body {
+            background: #1e293b;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-align: center;
+            z-index: 5;
+            min-width: 130px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s;
+        }
+
+        .fa-body.active {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.25);
+        }
+
+        .fa-carry-wire {
+            position: absolute;
+            left: 50%;
+            width: 2px;
+            background: #334155;
+            z-index: 1;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .fa-carry-wire.up {
+            bottom: 100%;
+            height: 18px;
+        }
+
+        .fa-carry-wire.active {
+            background: #f59e0b;
+            box-shadow: 0 0 8px #f59e0b;
+        }
+
+        /* Sequential FSM Simulator */
+        .seq-dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .seq-ctrl-bar {
+            display: flex;
+            gap: 8px;
+        }
+
+        .seq-btn {
+            flex: 1;
+            background: #1e293b;
+            border: 1px solid var(--border);
             color: var(--text-primary);
-            opacity: 1;
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .seq-btn:hover {
+            background: #334155;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .seq-btn.primary-btn {
+            background: var(--accent-purple);
+            border-color: var(--accent-purple);
+        }
+
+        .seq-btn.primary-btn:hover {
+            background: #7c3aed;
+        }
+
+        .seq-register-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 576px) {
+            .seq-register-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .reg-box {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+
+        .reg-name {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .reg-bit-cells {
+            display: flex;
+            gap: 2px;
+            margin-top: 4px;
+        }
+
+        .reg-bit {
+            flex: 1;
+            height: 18px;
+            background: #1e293b;
+            border: 1px solid var(--border);
+            font-size: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            color: var(--text-secondary);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .reg-bit.active {
+            background: var(--accent-purple);
+            color: #fff;
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 5px rgba(139, 92, 246, 0.4);
+        }
+
+        .reg-val {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            font-weight: bold;
+            float: right;
+            color: var(--text-primary);
+        }
+
+        .seq-log-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            height: 130px;
+            overflow-y: auto;
+            text-align: left;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .log-entry {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            line-height: 1.4;
+            border-left: 2px solid var(--border);
+            padding-left: 6px;
+        }
+
+        .log-entry.highlight {
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .log-entry.success {
+            color: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .log-entry.error {
+            color: var(--accent-red);
+            border-color: var(--accent-red);
         }
 
         .explanation-text {
-            margin-top: 2rem;
-            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
             color: var(--text-secondary);
-            height: 60px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-blue);
+            text-align: left;
         }
     </style>
 </head>
@@ -556,51 +968,194 @@
 
         <!-- INTERACTIVE ROUTER -->
         <div id="interactive" class="view-section">
-            <div class="interactive-panel">
-                <h2>Interactive Data Router</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Click an operation below to visualize how
-                    the new architecture routes the data.</p>
+            <div class="card interactive-container">
+                <h2>Interactive Data Router & Bit-Level Flow Visualizer</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    Toggle individual input bits or select different ALU operations below to observe real-time circuit pathways, logic gate processing, and clock FSM register shifts.
+                </p>
 
                 <div class="operation-buttons">
-                    <button class="op-btn active" onclick="simulateRoute('comb', 'ADD')">ADD</button>
-                    <button class="op-btn" onclick="simulateRoute('comb', 'SUB')">SUB</button>
-                    <button class="op-btn" onclick="simulateRoute('comb', 'AND')">AND</button>
-                    <button class="op-btn" onclick="simulateRoute('comb', 'XOR')">XOR</button>
-                    <button class="op-btn" onclick="simulateRoute('seq', 'MUL')">MUL (Multiply)</button>
-                    <button class="op-btn" onclick="simulateRoute('seq', 'DIV')">DIV (Divide)</button>
+                    <button class="op-btn active" onclick="setOperation('ADD', 'comb')">ADD</button>
+                    <button class="op-btn" onclick="setOperation('SUB', 'comb')">SUB</button>
+                    <button class="op-btn" onclick="setOperation('AND', 'comb')">AND</button>
+                    <button class="op-btn" onclick="setOperation('OR', 'comb')">OR</button>
+                    <button class="op-btn" onclick="setOperation('XOR', 'comb')">XOR</button>
+                    <button class="op-btn" onclick="setOperation('NAND', 'comb')">NAND</button>
+                    <button class="op-btn" onclick="setOperation('NOR', 'comb')">NOR</button>
+                    <button class="op-btn" onclick="setOperation('XNOR', 'comb')">XNOR</button>
+                    <button class="op-btn" onclick="setOperation('MUL', 'seq')">MUL (Sequential)</button>
+                    <button class="op-btn" onclick="setOperation('DIV', 'seq')">DIV (Sequential)</button>
                 </div>
 
-                <div class="routing-display">
-                    <div class="route-step" id="step-input">
-                        <strong>Input Buffer</strong><br>
-                        <small>Data A, Data B, Opcode</small>
+                <div class="interactive-grid">
+                    <!-- Inputs and Outputs Panel (Left Column) -->
+                    <div class="panel">
+                        <div class="panel-title">Inputs & Registers</div>
+                        
+                        <div class="bit-container">
+                            <!-- Input A -->
+                            <div>
+                                <div class="bit-row">
+                                    <span class="bit-label">Input A (8b)</span>
+                                    <div class="bit-cells" id="cells-a">
+                                        <!-- 8 cells populated by JS -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Input B -->
+                            <div>
+                                <div class="bit-row">
+                                    <span class="bit-label">Input B (8b)</span>
+                                    <div class="bit-cells" id="cells-b">
+                                        <!-- 8 cells populated by JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Control signals -->
+                        <button class="ci-toggle" id="btn-ci-toggle" onclick="toggleCarryIn()">Carry In (Ci): 0</button>
+
+                        <div class="val-display">
+                            <div class="val-row">
+                                <span class="val-title">Decimal A:</span>
+                                <span class="val-num" id="dec-a">10</span>
+                            </div>
+                            <div class="val-row">
+                                <span class="val-title">Decimal B:</span>
+                                <span class="val-num" id="dec-b">5</span>
+                            </div>
+                            <div class="val-row" style="border-top: 1px solid var(--border); padding-top: 4px; margin-top: 4px;">
+                                <span class="val-title">ALU Out Result:</span>
+                                <span class="val-num" id="dec-result" style="color: var(--accent-blue);">15</span>
+                            </div>
+                        </div>
+
+                        <div class="panel-title" style="margin-top: 1.5rem; font-size: 1rem;">Status Flags</div>
+                        <div class="flags-grid">
+                            <div class="flag-box" id="flag-z">
+                                <span class="flag-name">Zero (Z)</span>
+                                <span class="flag-val" id="flag-z-val">0</span>
+                            </div>
+                            <div class="flag-box" id="flag-n">
+                                <span class="flag-name">Sign (N)</span>
+                                <span class="flag-val" id="flag-n-val">0</span>
+                            </div>
+                            <div class="flag-box" id="flag-co">
+                                <span class="flag-name">Carry (Co)</span>
+                                <span class="flag-val" id="flag-co-val">0</span>
+                            </div>
+                            <div class="flag-box" id="flag-ov">
+                                <span class="flag-name">Over (OV)</span>
+                                <span class="flag-val" id="flag-ov-val">0</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="route-arrow" id="arr-1">→</div>
+                    <!-- Schematic and Bit-Level Flow Panel (Right Column) -->
+                    <div class="schematic-viewport">
+                        <svg style="display:none;">
+                            <defs>
+                                <g id="svg-and">
+                                    <path d="M 0 0 H 26 C 40 0, 50 6, 50 15 C 50 24, 40 30, 26 30 H 0 Z" />
+                                </g>
+                                <g id="svg-or">
+                                    <path d="M 0 0 C 8 0, 20 5, 32 15 C 20 25, 8 30, 0 30 C 7 20, 7 10, 0 0 Z" />
+                                </g>
+                                <g id="svg-xor">
+                                    <path d="M -5 0 C 2 10, 2 20, -5 30" fill="none" stroke-width="2" />
+                                    <path d="M 0 0 C 8 0, 20 5, 32 15 C 20 25, 8 30, 0 30 C 7 20, 7 10, 0 0 Z" />
+                                </g>
+                            </defs>
+                        </svg>
 
-                    <div style="display:flex; flex-direction:column; gap: 20px;">
-                        <div class="route-step" id="step-comb">
-                            <strong>@always_comb</strong><br>
-                            <small>Single-Cycle Logic</small>
+                        <!-- Mode 1: Bitwise Gates -->
+                        <div id="bitwise-viewport">
+                            <div id="bitwise-rows-container">
+                                <!-- Generated by JS -->
+                            </div>
                         </div>
-                        <div class="route-step" id="step-seq">
-                            <strong>@always(clk)</strong><br>
-                            <small>State Machine</small>
+
+                        <!-- Mode 2: Full Adder Ripple Carry Chain -->
+                        <div id="adder-viewport">
+                            <div class="adder-chain">
+                                <!-- Carry Out Stage -->
+                                <div class="fa-stage" style="border: none; background: transparent; padding: 0 16px;">
+                                    <div style="flex-grow:1;"></div>
+                                    <div class="fa-body" style="background: rgba(59, 130, 246, 0.1); border-color: var(--accent-blue); min-width: 120px;">
+                                        Carry Out (Co)<br>
+                                        <span style="font-size: 1.1rem; font-family: 'Fira Code', monospace;" id="fa-global-co">0</span>
+                                    </div>
+                                    <div style="flex-grow:1;"></div>
+                                </div>
+
+                                <!-- Adders container -->
+                                <div id="fa-stages-container">
+                                    <!-- Generated by JS -->
+                                </div>
+
+                                <!-- Carry In Stage -->
+                                <div class="fa-stage" style="border: none; background: transparent; padding: 0 16px;">
+                                    <div style="flex-grow:1;"></div>
+                                    <div class="fa-body" style="background: rgba(245, 158, 11, 0.1); border-color: #f59e0b; min-width: 120px;" id="fa-ci-block">
+                                        Carry In (Ci)<br>
+                                        <span style="font-size: 1.1rem; font-family: 'Fira Code', monospace;" id="fa-global-ci">0</span>
+                                    </div>
+                                    <div style="flex-grow:1;"></div>
+                                    <div class="fa-carry-wire up" id="fa-carry-wire-ci" style="left:50%;"></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="route-arrow" id="arr-2">→</div>
+                        <!-- Mode 3: Sequential FSM Simulator -->
+                        <div id="seq-viewport">
+                            <div class="seq-dashboard">
+                                <div class="panel" style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.05); padding: 12px;">
+                                    <div class="seq-ctrl-bar">
+                                        <button class="seq-btn primary-btn" id="seq-btn-step" onclick="stepClock()">Step Clock</button>
+                                        <button class="seq-btn" id="seq-btn-run" onclick="runSeqSim()">Run to Completion</button>
+                                        <button class="seq-btn" id="seq-btn-reset" onclick="resetSeqSim()">Reset Simulation</button>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; margin-top: 10px; font-family: 'Fira Code', monospace; font-size: 0.85rem; padding: 0 4px;">
+                                        <span>State: <strong id="seq-state" style="color: var(--accent-purple);">IDLE</strong></span>
+                                        <span>Count: <strong id="seq-count" style="color: var(--accent-blue);">0 / 8</strong></span>
+                                    </div>
+                                </div>
 
-                    <div class="route-step" id="step-mux">
-                        <strong>out_mux</strong><br>
-                        <small>Result Multiplexer</small>
+                                <div class="seq-register-grid">
+                                    <div class="reg-box">
+                                        <span class="reg-name">Accumulator / Remainder <span class="reg-val" id="reg-acc-val">0</span></span>
+                                        <div class="reg-bit-cells" id="reg-acc-bits"></div>
+                                    </div>
+                                    <div class="reg-box">
+                                        <span class="reg-name">Multiplicand / Divisor <span class="reg-val" id="reg-cand-val">0</span></span>
+                                        <div class="reg-bit-cells" id="reg-cand-bits"></div>
+                                    </div>
+                                    <div class="reg-box">
+                                        <span class="reg-name">Multiplier / Quotient <span class="reg-val" id="reg-ier-val">0</span></span>
+                                        <div class="reg-bit-cells" id="reg-ier-bits"></div>
+                                    </div>
+                                    <div class="reg-box">
+                                        <span class="reg-name">Output Result register <span class="reg-val" id="reg-out-val">0</span></span>
+                                        <div class="reg-bit-cells" id="reg-out-bits"></div>
+                                    </div>
+                                </div>
+
+                                <div class="panel" style="background: rgba(0,0,0,0.25); border-color: rgba(255,255,255,0.05); padding: 10px;">
+                                    <span style="font-size:0.75rem; color: var(--text-secondary); display:block; margin-bottom: 5px; font-weight:600; text-transform: uppercase;">FSM Step Log</span>
+                                    <div class="seq-log-panel" id="seq-log">
+                                        <div class="log-entry">Click "Step Clock" to begin sequential execution.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
                 <div class="explanation-text" id="route-explanation">
-                    The <strong>ADD</strong> operation is a basic arithmetic function. It flows directly through the
-                    <code>@always_comb</code> block and calculates instantly in 0 clock cycles. The <code>out_mux</code>
-                    routes this combinational result to the output.
+                    The <strong>ADD</strong> operation is a basic combinational function. It computes <code>A + B + Ci</code> instantly in the <code>@always_comb</code> block. The result is routed immediately to the output via the <code>out_mux</code>, taking 0 clock cycles.
                 </div>
             </div>
         </div>
@@ -608,58 +1163,664 @@
     </div>
 
     <script>
+        // Tab switching
         function switchTab(tabId) {
-            // Update buttons
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
-            // Update sections
             document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
         }
 
-        function simulateRoute(type, opName) {
-            // Update buttons
-            document.querySelectorAll('.op-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        // Logic Visualizer Variables
+        let inputA = [0, 0, 0, 0, 1, 0, 1, 0]; // 10
+        let inputB = [0, 0, 0, 0, 0, 1, 0, 1]; // 5
+        let carryIn = 0;
+        let activeOp = 'ADD';
+        let activeType = 'comb';
 
-            // Reset all routing highlights
-            const steps = ['step-input', 'step-comb', 'step-seq', 'step-mux'];
-            const arrows = ['arr-1', 'arr-2'];
+        // Sequential Simulation State
+        let simState = {
+            state: 'IDLE',
+            count: 0,
+            accumulate: 0,
+            multiplicand: 0,
+            multiplier: 0,
+            remainder: 0,
+            divisor: 0,
+            result: 0,
+            overflow: 0,
+            stepLog: []
+        };
 
-            steps.forEach(id => document.getElementById(id).className = 'route-step');
-            arrows.forEach(id => document.getElementById(id).className = 'route-arrow');
-
-            // Animate routing sequence
-            setTimeout(() => {
-                document.getElementById('step-input').classList.add('active-route');
-                document.getElementById('arr-1').classList.add('active');
-
-                setTimeout(() => {
-                    if (type === 'comb') {
-                        document.getElementById('step-comb').classList.add('active-route');
-                    } else {
-                        document.getElementById('step-seq').classList.add('active-route-seq');
-                    }
-
-                    setTimeout(() => {
-                        document.getElementById('arr-2').classList.add('active');
-                        document.getElementById('step-mux').classList.add('active-route');
-
-                        // Set Explanation Text
-                        const expText = document.getElementById('route-explanation');
-                        if (type === 'comb') {
-                            expText.innerHTML = `The <strong>${opName}</strong> operation is a basic function. It flows directly through the <code>@always_comb</code> block and calculates instantly in 0 clock cycles. The <code>out_mux</code> routes this combinational result to the output.`;
-                        } else {
-                            expText.innerHTML = `The <strong>${opName}</strong> operation is highly complex. The state machine transitions from <code>IDLE</code> to <code>CALC</code>, taking 8 clock cycles to compute in the <code>@always(clk)</code> block. The <code>out_mux</code> routes this sequential result to the output.`;
-                        }
-                    }, 400);
-                }, 400);
-            }, 100);
+        // Decoders
+        function getValA() {
+            return inputA.reduce((acc, val, i) => acc + (val << (7 - i)), 0);
         }
 
-        // Initialize the first route
-        simulateRoute('comb', 'ADD');
+        function getValB() {
+            return inputB.reduce((acc, val, i) => acc + (val << (7 - i)), 0);
+        }
+
+        // Initialize Bit Checkboxes in UI
+        function populateToggles() {
+            const cellsA = document.getElementById('cells-a');
+            const cellsB = document.getElementById('cells-b');
+            cellsA.innerHTML = '';
+            cellsB.innerHTML = '';
+
+            for (let i = 0; i < 8; i++) {
+                const bitIndex = i; // MSB = 0, LSB = 7
+                const labelIndex = 7 - i;
+                
+                // Input A bit cell
+                const cellA = document.createElement('div');
+                cellA.className = 'bit-cell' + (inputA[bitIndex] === 1 ? ' active' : '');
+                cellA.textContent = inputA[bitIndex];
+                cellA.title = `Bit A[${labelIndex}]`;
+                cellA.onclick = () => toggleBit('A', bitIndex);
+                cellsA.appendChild(cellA);
+
+                // Input B bit cell
+                const cellB = document.createElement('div');
+                cellB.className = 'bit-cell' + (inputB[bitIndex] === 1 ? ' active' : '');
+                cellB.textContent = inputB[bitIndex];
+                cellB.title = `Bit B[${labelIndex}]`;
+                cellB.onclick = () => toggleBit('B', bitIndex);
+                cellsB.appendChild(cellB);
+            }
+        }
+
+        function toggleBit(reg, index) {
+            if (reg === 'A') {
+                inputA[index] = inputA[index] ^ 1;
+            } else {
+                inputB[index] = inputB[index] ^ 1;
+            }
+            populateToggles();
+            resetSeqSim();
+            updateInputsAndOutputs();
+        }
+
+        function toggleCarryIn() {
+            carryIn = carryIn ^ 1;
+            updateInputsAndOutputs();
+        }
+
+        // Initialize SVGs on startup
+        function initBitwiseSchematic() {
+            const container = document.getElementById('bitwise-rows-container');
+            container.innerHTML = '';
+            for (let i = 7; i >= 0; i--) {
+                const svgHTML = `
+                <div class="bitwise-row" id="bitwise-row-${i}">
+                    <svg viewBox="0 0 500 50" class="wire-svg" width="100%" height="50">
+                        <!-- Wires -->
+                        <path id="wire-a-${i}" d="M 43 15 H 220" class="wire-line" />
+                        <path id="wire-b-${i}" d="M 43 35 H 220" class="wire-line" />
+                        <path id="wire-out-${i}" d="M 270 25 H 440" class="wire-line" />
+                        
+                        <!-- Input and Output pin circles -->
+                        <circle id="pin-a-${i}" cx="35" cy="15" r="8" fill="#1e293b" stroke="#334155" stroke-width="2" style="cursor:pointer;" onclick="toggleBit('A', ${7-i})" />
+                        <circle id="pin-b-${i}" cx="35" cy="35" r="8" fill="#1e293b" stroke="#334155" stroke-width="2" style="cursor:pointer;" onclick="toggleBit('B', ${7-i})" />
+                        <circle id="pin-out-${i}" cx="448" cy="25" r="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                        
+                        <!-- Text Labels inside SVG -->
+                        <text x="12" y="19" fill="#94a3b8" font-size="10" font-family="Fira Code" font-weight="bold">A${i}</text>
+                        <text x="12" y="39" fill="#94a3b8" font-size="10" font-family="Fira Code" font-weight="bold">B${i}</text>
+                        <text x="462" y="29" fill="#94a3b8" font-size="10" font-family="Fira Code" font-weight="bold">R${i}</text>
+                        
+                        <!-- Gate Group -->
+                        <g id="gate-group-${i}" transform="translate(220, 10)">
+                            <use id="gate-use-${i}" href="#svg-and" class="gate-svg" />
+                            <!-- Bubble for inverted logic -->
+                            <circle id="gate-bubble-${i}" cx="54" cy="15" r="3.5" fill="#0f172a" stroke="#94a3b8" stroke-width="2" style="display:none;" />
+                        </g>
+                    </svg>
+                </div>
+                `;
+                container.insertAdjacentHTML('beforeend', svgHTML);
+            }
+        }
+
+        function initAdderSchematic() {
+            const container = document.getElementById('fa-stages-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 8; i++) {
+                const stageHTML = `
+                <div class="fa-stage" id="fa-stage-${i}">
+                    <div class="fa-inputs" style="width: 85px;">
+                        <span class="fa-pin-val" id="fa-pin-a-${i}" style="cursor:pointer;" onclick="toggleBit('A', ${7-i})">A${i}: 0</span>
+                        <span class="fa-pin-val" id="fa-pin-b-${i}" style="cursor:pointer;" onclick="toggleBit('B', ${7-i})">B${i}: 0</span>
+                    </div>
+                    <div class="fa-body" id="fa-body-${i}">
+                        Full Adder ${i}<br>
+                        <span style="font-size: 0.68rem; font-weight: normal; font-family: 'Fira Code', monospace; color: var(--text-secondary);" id="fa-eq-${i}">Sum=0, Co=0</span>
+                    </div>
+                    <div class="fa-inputs" style="width: 85px; align-items: flex-end;">
+                        <span class="fa-pin-val" id="fa-pin-sum-${i}" style="font-weight:bold;">S${i}: 0</span>
+                        <span class="fa-pin-val" id="fa-pin-co-${i}">Co: 0</span>
+                    </div>
+                    <!-- Carry wire going up to next stage -->
+                    <div class="fa-carry-wire up" id="fa-carry-wire-${i}"></div>
+                </div>
+                `;
+                container.insertAdjacentHTML('beforeend', stageHTML);
+            }
+        }
+
+        // Operation Select Handler
+        function setOperation(opName, type) {
+            activeOp = opName;
+            activeType = type;
+
+            document.querySelectorAll('.op-btn').forEach(btn => {
+                if (btn.textContent.startsWith(opName)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Reset FSM sim when operation changes
+            resetSeqSim();
+            updateInputsAndOutputs();
+        }
+
+        // Calculations & Render router
+        function updateInputsAndOutputs() {
+            let valA = getValA();
+            let valB = getValB();
+
+            // Set decimal values
+            document.getElementById('dec-a').textContent = `${valA} (0b${valA.toString(2).padStart(8, '0')})`;
+            document.getElementById('dec-b').textContent = `${valB} (0b${valB.toString(2).padStart(8, '0')})`;
+
+            // Configure Carry-In button based on active opcode
+            let btnCi = document.getElementById('btn-ci-toggle');
+            if (activeOp === 'ADD') {
+                btnCi.removeAttribute('disabled');
+                btnCi.textContent = `Carry In (Ci): ${carryIn}`;
+                if (carryIn === 1) btnCi.classList.add('active');
+                else btnCi.classList.remove('active');
+            } else if (activeOp === 'SUB') {
+                btnCi.setAttribute('disabled', 'true');
+                btnCi.textContent = `Carry In (Ci): Forced to 1`;
+                btnCi.classList.add('active');
+            } else {
+                btnCi.setAttribute('disabled', 'true');
+                btnCi.textContent = `Carry In (Ci): N/A`;
+                btnCi.classList.remove('active');
+            }
+
+            let res = 0;
+            let co = 0;
+            let ov = 0;
+            let z = 0;
+            let n = 0;
+
+            let finalCarryIn = (activeOp === 'SUB') ? 1 : carryIn;
+
+            if (activeOp === 'ADD') {
+                let total = valA + valB + finalCarryIn;
+                res = total & 255;
+                co = (total > 255) ? 1 : 0;
+                ov = (((valA & 128) === (valB & 128)) && ((res & 128) !== (valA & 128))) ? 1 : 0;
+            } else if (activeOp === 'SUB') {
+                let diff = valA - valB;
+                res = diff & 255;
+                co = (diff < 0) ? 1 : 0; // Borrow
+                ov = (((valA & 128) !== (valB & 128)) && ((res & 128) !== (valA & 128))) ? 1 : 0;
+            } else if (activeOp === 'AND') {
+                res = valA & valB;
+            } else if (activeOp === 'OR') {
+                res = valA | valB;
+            } else if (activeOp === 'XOR') {
+                res = valA ^ valB;
+            } else if (activeOp === 'NAND') {
+                res = ( ~(valA & valB) ) & 255;
+            } else if (activeOp === 'NOR') {
+                res = ( ~(valA | valB) ) & 255;
+            } else if (activeOp === 'XNOR') {
+                res = ( ~(valA ^ valB) ) & 255;
+            } else if (activeOp === 'MUL') {
+                let mult = valA * valB;
+                res = mult & 255;
+                ov = (mult > 255) ? 1 : 0;
+            } else if (activeOp === 'DIV') {
+                if (valB === 0) {
+                    res = 255;
+                    ov = 1;
+                } else {
+                    res = Math.floor((valA & 15) / (valB & 15)) & 15;
+                }
+            }
+
+            z = (res === 0) ? 1 : 0;
+            n = (res & 128) !== 0 ? 1 : 0;
+
+            // Update output displays
+            document.getElementById('dec-result').textContent = `${res} (0b${res.toString(2).padStart(8, '0')})`;
+
+            // Status flags rendering
+            updateFlagDisplay('flag-z', 'flag-z-val', z);
+            updateFlagDisplay('flag-n', 'flag-n-val', n);
+            updateFlagDisplay('flag-co', 'flag-co-val', co);
+            updateFlagDisplay('flag-ov', 'flag-ov-val', ov, true); // Overflow flag marked as red
+
+            // Select active viewport
+            document.getElementById('bitwise-viewport').classList.remove('active-viewport');
+            document.getElementById('adder-viewport').classList.remove('active-viewport');
+            document.getElementById('seq-viewport').classList.remove('active-viewport');
+
+            const expText = document.getElementById('route-explanation');
+
+            if (activeType === 'seq') {
+                document.getElementById('seq-viewport').classList.add('active-viewport');
+                if (activeOp === 'MUL') {
+                    expText.innerHTML = `The <strong>MUL</strong> operation is sequential. Multiplication uses a shift-and-add algorithm governed by a state machine (IDLE & CALC) in the clocked block. It runs over 8 clock cycles, shifting the Multiplicand left and the Multiplier right at each cycle, adding to the Accumulator if the Multiplier's LSB is 1. The result is routed once completed.`;
+                } else {
+                    expText.innerHTML = `The <strong>DIV</strong> operation is sequential. It implements a restoring division algorithm on 4-bit numbers (width=8 / half=4). It runs for 8 cycles inside the CALC state, shifting the Dividend in from the lower half of the Remainder register to the upper half, doing trial subtractions against the Divisor. Quotient bits are shifted into the LSB.`;
+                }
+                updateSeqUI();
+            } else if (activeOp === 'ADD' || activeOp === 'SUB') {
+                document.getElementById('adder-viewport').classList.add('active-viewport');
+                if (activeOp === 'ADD') {
+                    expText.innerHTML = `The <strong>ADD</strong> operation is combinational. Data A, B, and the Carry-In enter a Ripple Carry Adder chain. Each bit cell computes its Sum and Carry-out instantly using gates, propagating carries upward from Bit 0 to Bit 7. The result is routed immediately to the output via the Output Multiplexer in 0 clock cycles.`;
+                } else {
+                    expText.innerHTML = `The <strong>SUB</strong> operation computes subtraction combinationally. In hardware, subtraction is computed as <code>A + ~B + 1</code>. Visually, each bit of B is inverted (indicated by ➔ ~B) and the initial Carry-In is forced to 1 at the bottom, propagating subtraction borrow signals up through the Full Adder stages.`;
+                }
+                updateAdderSchematic();
+            } else {
+                document.getElementById('bitwise-viewport').classList.add('active-viewport');
+                expText.innerHTML = `The <strong>${activeOp}</strong> bitwise operation is fully combinational. Each of the 8 bits of Inputs A and B are routed to independent logic gates in the <code>@always_comb</code> block. Processing happens instantly, driving the output bits immediately via the output multiplexer in 0 clock cycles.`;
+                updateBitwiseSchematic();
+            }
+        }
+
+        function updateFlagDisplay(elementId, valId, value, isRed = false) {
+            const box = document.getElementById(elementId);
+            const val = document.getElementById(valId);
+            val.textContent = value;
+            if (value === 1) {
+                if (isRed) {
+                    box.className = 'flag-box active-red';
+                } else {
+                    box.className = 'flag-box active';
+                }
+            } else {
+                box.className = 'flag-box';
+            }
+        }
+
+        // Render Bitwise SVG
+        function updateBitwiseSchematic() {
+            let op = activeOp;
+            let isInv = (op === 'NAND' || op === 'NOR' || op === 'XNOR');
+            let baseOp = op;
+            if (isInv) {
+                if (op === 'NAND') baseOp = 'AND';
+                if (op === 'NOR') baseOp = 'OR';
+                if (op === 'XNOR') baseOp = 'XOR';
+            }
+
+            for (let i = 7; i >= 0; i--) {
+                let bitIndex = 7 - i;
+                let aVal = inputA[bitIndex];
+                let bVal = inputB[bitIndex];
+                let outVal = 0;
+
+                if (baseOp === 'AND') outVal = aVal & bVal;
+                else if (baseOp === 'OR') outVal = aVal | bVal;
+                else if (baseOp === 'XOR') outVal = aVal ^ bVal;
+
+                if (isInv) outVal = outVal ^ 1;
+
+                // Update Input A circle and wire
+                let wireA = document.getElementById(`wire-a-${i}`);
+                let pinA = document.getElementById(`pin-a-${i}`);
+                if (aVal === 1) {
+                    wireA.classList.add('active');
+                    pinA.setAttribute('fill', '#10b981');
+                    pinA.setAttribute('stroke', '#10b981');
+                } else {
+                    wireA.classList.remove('active');
+                    pinA.setAttribute('fill', '#1e293b');
+                    pinA.setAttribute('stroke', '#334155');
+                }
+
+                // Update Input B circle and wire
+                let wireB = document.getElementById(`wire-b-${i}`);
+                let pinB = document.getElementById(`pin-b-${i}`);
+                if (bVal === 1) {
+                    wireB.classList.add('active');
+                    pinB.setAttribute('fill', '#10b981');
+                    pinB.setAttribute('stroke', '#10b981');
+                } else {
+                    wireB.classList.remove('active');
+                    pinB.setAttribute('fill', '#1e293b');
+                    pinB.setAttribute('stroke', '#334155');
+                }
+
+                // Update Gate shape
+                let gateUse = document.getElementById(`gate-use-${i}`);
+                gateUse.setAttribute('href', `#svg-${baseOp.toLowerCase()}`);
+
+                let gateBubble = document.getElementById(`gate-bubble-${i}`);
+                let wireOut = document.getElementById(`wire-out-${i}`);
+
+                if (isInv) {
+                    gateBubble.style.display = 'block';
+                    wireOut.setAttribute('d', 'M 276 25 H 440'); // shorten wire slightly to accommodate bubble
+                } else {
+                    gateBubble.style.display = 'none';
+                    wireOut.setAttribute('d', 'M 270 25 H 440');
+                }
+
+                if (outVal === 1) {
+                    gateUse.classList.add('gate-active');
+                    if (isInv) {
+                        gateBubble.setAttribute('stroke', '#3b82f6');
+                        gateBubble.setAttribute('fill', '#3b82f6');
+                    }
+                } else {
+                    gateUse.classList.remove('gate-active');
+                    if (isInv) {
+                        gateBubble.setAttribute('stroke', '#94a3b8');
+                        gateBubble.setAttribute('fill', '#0f172a');
+                    }
+                }
+
+                // Update Output Pin and wire
+                let pinOut = document.getElementById(`pin-out-${i}`);
+                if (outVal === 1) {
+                    wireOut.classList.add('active-out');
+                    pinOut.setAttribute('fill', '#3b82f6');
+                    pinOut.setAttribute('stroke', '#3b82f6');
+                } else {
+                    wireOut.classList.remove('active-out');
+                    pinOut.setAttribute('fill', '#1e293b');
+                    pinOut.setAttribute('stroke', '#334155');
+                }
+            }
+        }
+
+        // Render Adder Stack
+        function updateAdderSchematic() {
+            let isSub = (activeOp === 'SUB');
+            let currentCarry = isSub ? 1 : carryIn;
+
+            // Set global Ci indicator value & active wire state
+            document.getElementById('fa-global-ci').textContent = currentCarry;
+            let ciWire = document.getElementById('fa-carry-wire-ci');
+            if (currentCarry === 1) ciWire.classList.add('active');
+            else ciWire.classList.remove('active');
+
+            for (let i = 0; i < 8; i++) {
+                let bitIndex = 7 - i; // Bit 0 is element 7, Bit 7 is element 0
+                let aVal = inputA[bitIndex];
+                let bVal = inputB[bitIndex];
+                let originalB = bVal;
+
+                if (isSub) {
+                    bVal = bVal ^ 1; // logical inversion for subtraction
+                }
+
+                let sumBit = aVal ^ bVal ^ currentCarry;
+                let nextCarry = (aVal & bVal) | (currentCarry & (aVal ^ bVal));
+
+                let stage = document.getElementById(`fa-stage-${i}`);
+                let pinA = document.getElementById(`fa-pin-a-${i}`);
+                let pinB = document.getElementById(`fa-pin-b-${i}`);
+                let body = document.getElementById(`fa-body-${i}`);
+                let pinSum = document.getElementById(`fa-pin-sum-${i}`);
+                let pinCo = document.getElementById(`fa-pin-co-${i}`);
+                let carryWire = document.getElementById(`fa-carry-wire-${i}`);
+
+                // Update input pin text & colors
+                pinA.textContent = `A${i}: ${aVal}`;
+                if (isSub) {
+                    pinB.textContent = `B${i}: ${originalB}➔${bVal}`;
+                } else {
+                    pinB.textContent = `B${i}: ${originalB}`;
+                }
+
+                if (aVal === 1) pinA.classList.add('active');
+                else pinA.classList.remove('active');
+
+                if (isSub) {
+                    if (bVal === 1) pinB.className = 'fa-pin-val active-inv';
+                    else pinB.className = 'fa-pin-val';
+                } else {
+                    if (bVal === 1) pinB.className = 'fa-pin-val active';
+                    else pinB.className = 'fa-pin-val';
+                }
+
+                // Sum result styling
+                pinSum.textContent = `S${i}: ${sumBit}`;
+                if (sumBit === 1) {
+                    pinSum.classList.add('active');
+                    body.classList.add('active');
+                    stage.classList.add('active');
+                } else {
+                    pinSum.classList.remove('active');
+                    body.classList.remove('active');
+                    stage.classList.remove('active');
+                }
+
+                // Carry out wire styling
+                pinCo.textContent = `Co: ${nextCarry}`;
+                if (nextCarry === 1) {
+                    pinCo.classList.add('active');
+                    carryWire.classList.add('active');
+                } else {
+                    pinCo.classList.remove('active');
+                    carryWire.classList.remove('active');
+                }
+
+                document.getElementById(`fa-eq-${i}`).textContent = `Ci=${currentCarry} Sum=${sumBit} Co=${nextCarry}`;
+
+                currentCarry = nextCarry;
+            }
+
+            // Global Carry-Out indicator
+            document.getElementById('fa-global-co').textContent = currentCarry;
+        }
+
+        // FSM Simulation Functions
+        function resetSeqSim() {
+            simState.state = 'IDLE';
+            simState.count = 0;
+            simState.accumulate = 0;
+            simState.multiplicand = 0;
+            simState.multiplier = 0;
+            simState.remainder = 0;
+            simState.divisor = 0;
+            simState.result = 0;
+            simState.overflow = 0;
+            simState.stepLog = ["FSM Reset. State set to IDLE. Click 'Step Clock' to begin."];
+            
+            updateSeqUI();
+        }
+
+        function stepClock() {
+            let valA = getValA();
+            let valB = getValB();
+
+            if (simState.state === 'IDLE') {
+                if (activeOp === 'MUL') {
+                    simState.accumulate = 0;
+                    simState.multiplicand = valA;
+                    simState.multiplier = valB;
+                    simState.count = 0;
+                    simState.overflow = 0;
+                    simState.state = 'CALC';
+                    simState.stepLog.push(`[Init MUL] Latched A=${valA}, B=${valB}. Accumulator=0. Transitioning to CALC state.`);
+                } else if (activeOp === 'DIV') {
+                    let divB = valB & 15; // 4-bit divisor
+                    if (divB !== 0) {
+                        simState.remainder = valA;
+                        simState.divisor = divB;
+                        simState.count = 0;
+                        simState.overflow = 0;
+                        simState.state = 'CALC';
+                        simState.stepLog.push(`[Init DIV] Latched Dividend A=${valA}, Divisor B (4-bit)=${divB}. Transitioning to CALC.`);
+                    } else {
+                        // Divide-by-zero
+                        simState.result = 255;
+                        simState.overflow = 1;
+                        simState.stepLog.push(`[Init DIV] Error: Divide-by-zero detected! Output=255, Overflow=1.`);
+                    }
+                }
+            } else if (simState.state === 'CALC') {
+                if (activeOp === 'MUL') {
+                    if (simState.count < 8) {
+                        let lsb = simState.multiplier & 1;
+                        let partial = simState.accumulate;
+                        let addLog = "";
+                        
+                        if (lsb === 1) {
+                            partial = simState.accumulate + simState.multiplicand;
+                            addLog = `Multiplier LSB is 1 ➔ Accumulate Multiplicand: ${simState.accumulate} + ${simState.multiplicand} = ${partial}.`;
+                        } else {
+                            addLog = `Multiplier LSB is 0 ➔ Accumulator unchanged (${simState.accumulate}).`;
+                        }
+
+                        simState.accumulate = partial & 255;
+                        simState.multiplicand = (simState.multiplicand << 1) & 255;
+                        simState.multiplier = simState.multiplier >> 1;
+                        
+                        simState.stepLog.push(`[Cycle ${simState.count}] ${addLog} Shifting Multiplicand left, Multiplier right.`);
+                        simState.count++;
+
+                        if (simState.count === 8) {
+                            simState.result = partial & 255;
+                            simState.overflow = (partial > 255) ? 1 : 0;
+                            simState.state = 'IDLE';
+                            simState.stepLog.push(`[Done] MUL Complete. Final Result = ${simState.result}, Overflow = ${simState.overflow}.`);
+                        }
+                    }
+                } else if (activeOp === 'DIV') {
+                    if (simState.count < 8) {
+                        let remainderVal = simState.remainder;
+                        let divisorVal = simState.divisor;
+
+                        let partialR = (remainderVal >> 4) & 15;
+                        let quotient = remainderVal & 15;
+
+                        // Shift partial remainder left, bring in quotient MSB
+                        partialR = ((partialR << 1) | ((quotient >> 3) & 1)) & 15;
+                        let qBit = 0;
+                        let subLog = "";
+
+                        if (partialR >= divisorVal) {
+                            partialR -= divisorVal;
+                            qBit = 1;
+                            subLog = `Partial Remainder (${partialR + divisorVal}) >= Divisor (${divisorVal}) ➔ Subtract, Quotient Bit=1.`;
+                        } else {
+                            subLog = `Partial Remainder (${partialR}) < Divisor (${divisorVal}) ➔ No subtract, Quotient Bit=0.`;
+                        }
+
+                        let nextRemainder = (((partialR & 15) << 4) | ((quotient << 1) & 15) | qBit) & 255;
+                        simState.remainder = nextRemainder;
+                        
+                        simState.stepLog.push(`[Cycle ${simState.count}] ${subLog} Shifting Remainder register.`);
+                        simState.count++;
+
+                        if (simState.count === 8) {
+                            simState.result = nextRemainder & 15; // quotient in bottom 4 bits
+                            simState.overflow = 0;
+                            simState.state = 'IDLE';
+                            simState.stepLog.push(`[Done] DIV Complete. Quotient = ${simState.result}, Remainder = ${(nextRemainder >> 4) & 15}.`);
+                        }
+                    }
+                }
+            }
+            updateSeqUI();
+        }
+
+        function runSeqSim() {
+            let limit = 0;
+            // Run until returning to IDLE
+            stepClock();
+            while (simState.state === 'CALC' && limit < 12) {
+                stepClock();
+                limit++;
+            }
+        }
+
+        function updateSeqUI() {
+            document.getElementById('seq-state').textContent = simState.state;
+            if (simState.state === 'CALC') {
+                document.getElementById('seq-state').style.color = 'var(--accent-purple)';
+            } else {
+                document.getElementById('seq-state').style.color = 'var(--text-secondary)';
+            }
+
+            document.getElementById('seq-count').textContent = `${simState.count} / 8`;
+
+            // Registers layout render
+            if (activeOp === 'MUL') {
+                document.getElementById('reg-acc-val').textContent = simState.accumulate;
+                updateRegisterBits('reg-acc-bits', simState.accumulate);
+
+                document.getElementById('reg-cand-val').textContent = simState.multiplicand;
+                updateRegisterBits('reg-cand-bits', simState.multiplicand);
+
+                document.getElementById('reg-ier-val').textContent = simState.multiplier;
+                updateRegisterBits('reg-ier-bits', simState.multiplier);
+            } else { // DIV
+                document.getElementById('reg-acc-val').textContent = simState.remainder;
+                updateRegisterBits('reg-acc-bits', simState.remainder);
+
+                document.getElementById('reg-cand-val').textContent = simState.divisor;
+                updateRegisterBits('reg-cand-bits', simState.divisor);
+
+                let quotientVal = simState.remainder & 15;
+                document.getElementById('reg-ier-val').textContent = quotientVal;
+                updateRegisterBits('reg-ier-bits', quotientVal);
+            }
+
+            document.getElementById('reg-out-val').textContent = simState.result;
+            updateRegisterBits('reg-out-bits', simState.result);
+
+            // Populate logging console
+            const logBox = document.getElementById('seq-log');
+            logBox.innerHTML = '';
+            simState.stepLog.forEach(log => {
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                if (log.includes('[Done]')) entry.className += ' success';
+                else if (log.includes('[Init')) entry.className += ' highlight';
+                else if (log.includes('Error')) entry.className += ' error';
+                entry.textContent = log;
+                logBox.appendChild(entry);
+            });
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function updateRegisterBits(elementId, value, len = 8) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            for (let i = 0; i < len; i++) {
+                let bitIndex = len - 1 - i;
+                let bit = (value >> bitIndex) & 1;
+                let cell = document.createElement('div');
+                cell.className = 'reg-bit';
+                if (bit === 1) cell.classList.add('active');
+                cell.textContent = bit;
+                container.appendChild(cell);
+            }
+        }
+
+        // Bootstrap on DOM load
+        window.addEventListener('load', () => {
+            populateToggles();
+            initBitwiseSchematic();
+            initAdderSchematic();
+            updateInputsAndOutputs();
+            resetSeqSim();
+        });
     </script>
 </body>
 
