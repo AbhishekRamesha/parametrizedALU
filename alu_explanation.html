@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyHDL ALU Architecture: Before & After</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface: rgba(30, 41, 59, 0.7);
+            --surface-hover: rgba(51, 65, 85, 0.9);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        header {
+            text-align: center;
+            padding: 4rem 2rem 2rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .tab-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn:hover {
+            background: var(--surface-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+            border-color: transparent;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .architecture-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .architecture-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h3.bad {
+            color: var(--accent-red);
+        }
+
+        .card h3.good {
+            color: var(--accent-green);
+        }
+
+        .diagram-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            position: relative;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .node {
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            z-index: 2;
+            width: 80%;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .node.inputs {
+            background: rgba(148, 163, 184, 0.2);
+            border: 1px solid var(--text-secondary);
+        }
+
+        .node.sync {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--accent-red);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .node.async {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--accent-green);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .node.mux {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid var(--accent-blue);
+        }
+
+        .arrow {
+            width: 2px;
+            height: 30px;
+            background: var(--text-secondary);
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .arrow::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: -4px;
+            border-width: 5px 5px 0;
+            border-style: solid;
+            border-color: var(--text-secondary) transparent transparent transparent;
+        }
+
+        .code-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 900px) {
+            .code-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .code-header {
+            background: #2d2d2d;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ccc;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        pre {
+            padding: 1.5rem;
+            margin: 0;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #d4d4d4;
+        }
+
+        .kw {
+            color: #569cd6;
+        }
+
+        /* keyword */
+        .fn {
+            color: #dcdcaa;
+        }
+
+        /* function */
+        .str {
+            color: #ce9178;
+        }
+
+        /* string */
+        .num {
+            color: #b5cea8;
+        }
+
+        /* number */
+        .cmt {
+            color: #6a9955;
+            font-style: italic;
+        }
+
+        /* comment */
+
+        /* Interactive Explorer */
+        .interactive-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 3rem;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .operation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .op-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .op-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .op-btn.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .routing-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            min-height: 200px;
+        }
+
+        .route-step {
+            padding: 1rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            width: 200px;
+            opacity: 0.3;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .route-step.active-route {
+            opacity: 1;
+            transform: scale(1.05);
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .route-step.active-route-seq {
+            opacity: 1;
+            transform: scale(1.05);
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .route-arrow {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            opacity: 0.3;
+            transition: all 0.5s ease;
+        }
+
+        .route-arrow.active {
+            color: var(--text-primary);
+            opacity: 1;
+        }
+
+        .explanation-text {
+            margin-top: 2rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            height: 60px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>ALU Architecture Explorer</h1>
+        <p class="subtitle">An interactive guide exploring the refactoring of a MyHDL N-Bit ALU from an old
+            design pattern to professional, synthesizable hardware architecture.</p>
+    </header>
+
+    <div class="container">
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('architecture')">Architecture Overview</button>
+            <button class="tab-btn" onclick="switchTab('code')">Code Comparison</button>
+            <button class="tab-btn" onclick="switchTab('interactive')">Interactive Data Router</button>
+        </div>
+
+        <!-- ARCHITECTURE VIEW -->
+        <div id="architecture" class="view-section active">
+            <div class="architecture-grid">
+
+                <!-- Old Architecture -->
+                <div class="card">
+                    <h3 class="bad">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                            </path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        The Old Architecture
+                    </h3>
+                    <p>The previous design utilized a massive, single synchronous block. All operations were tied to the
+                        clock edge, forcing simple combinational logic to act like slow sequential logic.</p>
+
+                    <div class="diagram-box">
+                        <div class="node inputs">Opcode + Data Inputs</div>
+                        <div class="arrow"></div>
+                        <div class="node sync">
+                            @always(clock.posedge)<br>
+                            <small>Giant if/elif chain</small>
+                        </div>
+                        <div class="arrow"></div>
+                        <div class="node inputs">Operation Result</div>
+                    </div>
+
+                    <ul style="margin-left: 1.5rem; color: var(--text-secondary);">
+                        <li>❌ <b>Magic Numbers:</b> Used <code>opcode == 8</code> instead of named states.</li>
+                        <li>❌ <b>Wasted Registers:</b> Simple logic like <code>ADD</code> consumed flip-flops.</li>
+                        <li>❌ <b>Poor Scaling:</b> Multi-cycle operations used manual <code>busy</code> flags.</li>
+                    </ul>
+                </div>
+
+                <!-- New Architecture -->
+                <div class="card">
+                    <h3 class="good">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        The New Architecture
+                    </h3>
+                    <p>The new architecture splits logic by its physical hardware equivalent. It uses Enums for states,
+                        distinct combinational paths, and an output multiplexer.</p>
+
+                    <div class="diagram-box">
+                        <div class="node inputs" style="width: 95%;">Opcode + Data Inputs</div>
+
+                        <div style="display: flex; width: 95%; justify-content: space-between; margin: 10px 0;">
+                            <div class="node async" style="width: 48%; margin:0;">
+                                @always_comb<br><small>ADD, SUB, AND, OR</small>
+                            </div>
+                            <div class="node sync"
+                                style="width: 48%; margin:0; background: rgba(139, 92, 246, 0.2); border-color: var(--accent-purple);">
+                                @always(clk)<br><small>MUL, DIV States</small>
+                            </div>
+                        </div>
+
+                        <div class="node mux">
+                            @always_comb (Output MUX)<br>
+                            <small>Selects result based on Opcode Enum</small>
+                        </div>
+                        <div class="arrow"></div>
+                        <div class="node inputs" style="width: 95%;">Operation Result</div>
+                    </div>
+
+                    <ul style="margin-left: 1.5rem; color: var(--text-secondary);">
+                        <li>✅ <b>Enums:</b> <code>opcode == t_Op.ADD</code> guarantees readability.</li>
+                        <li>✅ <b>Combinational Speed:</b> Basic math happens instantly in 0 cycles.</li>
+                        <li>✅ <b>Explicit State Machine:</b> Uses <code>IDLE</code> and <code>CALC</code> states
+                            cleanly.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CODE VIEW -->
+        <div id="code" class="view-section">
+            <div class="code-comparison">
+
+                <!-- Old Code -->
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Before: ALU_0.1.py (Snippet)</span>
+                        <span style="color: #ef4444;">Old Pattern</span>
+                    </div>
+                    <pre>
+<span class="cmt"># All operations trapped inside a clocked block</span>
+<span class="kw">@always</span>(clock_signal.posedge)
+<span class="kw">def</span> <span class="fn">logic</span>():
+    <span class="kw">if</span> opcode == <span class="num">0</span>:
+        total = data_in_1 + data_in_2 + carry_in
+        operation_result.next = total & full_mask
+        
+    <span class="kw">elif</span> opcode == <span class="num">1</span>:
+        diff = (data_in_1 - data_in_2)
+        operation_result.next = diff & full_mask
+        
+    <span class="cmt"># ... other bitwise logic ...</span>
+    
+    <span class="kw">elif</span> opcode == <span class="num">8</span>: <span class="cmt"># What does 8 mean?</span>
+        <span class="kw">if</span> busy == <span class="num">0</span>:
+            busy.next = <span class="num">1</span>
+            <span class="cmt"># ...</span>
+</pre>
+                </div>
+
+                <!-- New Code -->
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>After: ALU_0.1.py (Snippet)</span>
+                        <span style="color: #10b981;">New Pattern</span>
+                    </div>
+                    <pre>
+<span class="cmt"># Combinational Logic (Instantly calculates)</span>
+<span class="kw">@always_comb</span>
+<span class="kw">def</span> <span class="fn">comb_logic</span>():
+    <span class="kw">if</span> opcode == t_Op.ADD:
+        total = data_in_1 + data_in_2 + carry_in
+        comb_result.next = total & full_mask
+        
+<span class="cmt"># Sequential State Machine (Multi-Cycle)</span>
+<span class="kw">@always</span>(clock_signal.posedge)
+<span class="kw">def</span> <span class="fn">seq_logic</span>():
+    <span class="kw">if</span> state == t_State.IDLE:
+        <span class="kw">if</span> opcode == t_Op.MUL:
+            state.next = t_State.CALC
+            
+<span class="cmt"># Physical Multiplexer for Output Routing</span>
+<span class="kw">@always_comb</span>
+<span class="kw">def</span> <span class="fn">out_mux</span>():
+    <span class="kw">if</span> opcode <span class="kw">in</span> (t_Op.MUL, t_Op.DIV):
+        operation_result.next = seq_result
+    <span class="kw">else</span>:
+        operation_result.next = comb_result
+</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- INTERACTIVE ROUTER -->
+        <div id="interactive" class="view-section">
+            <div class="interactive-panel">
+                <h2>Interactive Data Router</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Click an operation below to visualize how
+                    the new architecture routes the data.</p>
+
+                <div class="operation-buttons">
+                    <button class="op-btn active" onclick="simulateRoute('comb', 'ADD')">ADD</button>
+                    <button class="op-btn" onclick="simulateRoute('comb', 'SUB')">SUB</button>
+                    <button class="op-btn" onclick="simulateRoute('comb', 'AND')">AND</button>
+                    <button class="op-btn" onclick="simulateRoute('comb', 'XOR')">XOR</button>
+                    <button class="op-btn" onclick="simulateRoute('seq', 'MUL')">MUL (Multiply)</button>
+                    <button class="op-btn" onclick="simulateRoute('seq', 'DIV')">DIV (Divide)</button>
+                </div>
+
+                <div class="routing-display">
+                    <div class="route-step" id="step-input">
+                        <strong>Input Buffer</strong><br>
+                        <small>Data A, Data B, Opcode</small>
+                    </div>
+
+                    <div class="route-arrow" id="arr-1">→</div>
+
+                    <div style="display:flex; flex-direction:column; gap: 20px;">
+                        <div class="route-step" id="step-comb">
+                            <strong>@always_comb</strong><br>
+                            <small>Single-Cycle Logic</small>
+                        </div>
+                        <div class="route-step" id="step-seq">
+                            <strong>@always(clk)</strong><br>
+                            <small>State Machine</small>
+                        </div>
+                    </div>
+
+                    <div class="route-arrow" id="arr-2">→</div>
+
+                    <div class="route-step" id="step-mux">
+                        <strong>out_mux</strong><br>
+                        <small>Result Multiplexer</small>
+                    </div>
+                </div>
+
+                <div class="explanation-text" id="route-explanation">
+                    The <strong>ADD</strong> operation is a basic arithmetic function. It flows directly through the
+                    <code>@always_comb</code> block and calculates instantly in 0 clock cycles. The <code>out_mux</code>
+                    routes this combinational result to the output.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update sections
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function simulateRoute(type, opName) {
+            // Update buttons
+            document.querySelectorAll('.op-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Reset all routing highlights
+            const steps = ['step-input', 'step-comb', 'step-seq', 'step-mux'];
+            const arrows = ['arr-1', 'arr-2'];
+
+            steps.forEach(id => document.getElementById(id).className = 'route-step');
+            arrows.forEach(id => document.getElementById(id).className = 'route-arrow');
+
+            // Animate routing sequence
+            setTimeout(() => {
+                document.getElementById('step-input').classList.add('active-route');
+                document.getElementById('arr-1').classList.add('active');
+
+                setTimeout(() => {
+                    if (type === 'comb') {
+                        document.getElementById('step-comb').classList.add('active-route');
+                    } else {
+                        document.getElementById('step-seq').classList.add('active-route-seq');
+                    }
+
+                    setTimeout(() => {
+                        document.getElementById('arr-2').classList.add('active');
+                        document.getElementById('step-mux').classList.add('active-route');
+
+                        // Set Explanation Text
+                        const expText = document.getElementById('route-explanation');
+                        if (type === 'comb') {
+                            expText.innerHTML = `The <strong>${opName}</strong> operation is a basic function. It flows directly through the <code>@always_comb</code> block and calculates instantly in 0 clock cycles. The <code>out_mux</code> routes this combinational result to the output.`;
+                        } else {
+                            expText.innerHTML = `The <strong>${opName}</strong> operation is highly complex. The state machine transitions from <code>IDLE</code> to <code>CALC</code>, taking 8 clock cycles to compute in the <code>@always(clk)</code> block. The <code>out_mux</code> routes this sequential result to the output.`;
+                        }
+                    }, 400);
+                }, 400);
+            }, 100);
+        }
+
+        // Initialize the first route
+        simulateRoute('comb', 'ADD');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,86 @@
+$date
+   Sun May  3 13:33:34 2026 UTC
+$end
+$version
+    MyHDL 0.11.51
+$end
+$timescale
+    1ns
+$end
+
+  $scope module comprehensive_test_alu $end
+    $var reg 1 ! carry_out $end
+    $var reg 1 " negative_flag $end
+    $var reg 1 # zero_flag $end
+    $var reg 1 $ overflow_flag $end
+    $var reg 1 % carry_in $end
+    $var reg 1 & clock_signal $end
+    $var reg 8 ' data_in_1 $end
+    $var reg 8 ( data_in_2 $end
+    $var string 4 ) opcode $end
+    $var reg 8 * operation_result $end
+    $scope module alu0 $end
+      $var reg 1 & clock_signal $end
+      $var reg 8 + accumulate $end
+      $var reg 1 % carry_in $end
+      $var reg 1 ! carry_out $end
+      $var reg 1 , comb_carry $end
+      $var reg 1 - comb_overflow $end
+      $var reg 8 . comb_result $end
+      $var reg 4 / count $end
+      $var reg 8 ' data_in_1 $end
+      $var reg 8 ( data_in_2 $end
+      $var reg 8 0 divisor $end
+      $var reg 8 1 multiplicand $end
+      $var reg 8 2 multiplier $end
+      $var reg 1 " negative_flag $end
+      $var string 4 ) opcode $end
+      $var reg 8 * operation_result $end
+      $var reg 1 $ overflow_flag $end
+      $var reg 8 3 remainder $end
+      $var reg 1 4 seq_overflow $end
+      $var reg 8 5 seq_result $end
+      $var string 1 6 state $end
+      $var reg 1 # zero_flag $end
+    $upscope $end
+  $upscope $end
+
+$enddefinitions $end
+
+$dumpvars
+0!
+0"
+0#
+0$
+0%
+1&
+b00000000 '
+b00000000 (
+sADD )
+b00000000 *
+b00000000 +
+0,
+0-
+b00000000 .
+b0000 /
+b00000000 0
+b00000000 1
+b00000000 2
+b00000000 3
+04
+b00000000 5
+sIDLE 6
+$end
+sSUB )
+b10001000 '
+1%
+1#
+b10001000 .
+b10001000 *
+0#
+1"
+#5
+0&
+#10
+1&
+#11
